@@ -1,0 +1,329 @@
+static void doStep_Steuerung_Region_Nachtbetrieb(uint32_t tick) {
+    switch(state_Steuerung_Region_Nachtbetrieb) {
+    case S_DEFAULT:
+        declareTimer(0,4,TimeOutRegionEv);
+        startTimer(0,tick);
+        state_Steuerung_Region_Nachtbetrieb = S_Steuerung_Region_Nachtbetrieb_Gelban;
+        #ifdef USESOCKET
+        sendActivation("Controller/Steuerung/Region/Nachtbetrieb/Region/Gelban");
+        #endif // USESOCKET
+        break;
+    case S_Steuerung_Region_Nachtbetrieb_Gelban:
+        if (eventIsSet(TimeOutRegionEv)){
+            port_write_Controller_Gelb(0);
+            declareTimer(0,4,TimeOutRegionEv);
+            startTimer(0,tick);
+            state_Steuerung_Region_Nachtbetrieb = S_Steuerung_Region_Nachtbetrieb_Gelbaus;
+            #ifdef USESOCKET
+            sendDeactivation("Controller/Steuerung/Region/Nachtbetrieb/Region/Gelban");
+            sendActivation("Controller/Steuerung/Region/Nachtbetrieb/Region/Gelbaus");
+            #endif // USESOCKET
+        }
+        break;
+    case S_Steuerung_Region_Nachtbetrieb_Gelbaus:
+        if (eventIsSet(TimeOutRegionEv)){
+            port_write_Controller_Gelb(1);
+            declareTimer(0,4,TimeOutRegionEv);
+            startTimer(0,tick);
+            state_Steuerung_Region_Nachtbetrieb = S_Steuerung_Region_Nachtbetrieb_Gelban;
+            #ifdef USESOCKET
+            sendDeactivation("Controller/Steuerung/Region/Nachtbetrieb/Region/Gelbaus");
+            sendActivation("Controller/Steuerung/Region/Nachtbetrieb/Region/Gelban");
+            #endif // USESOCKET
+        }
+        break;
+    }
+}
+
+static void leave_Steuerung_Region_Nachtbetrieb() {
+    #ifdef USESOCKET
+    switch(state_Steuerung_Region_Nachtbetrieb){
+    case S_Steuerung_Region_Nachtbetrieb_Gelban:
+        sendDeactivation("Controller/Steuerung/Region/Nachtbetrieb/Region/Gelban");
+        break;
+    case S_Steuerung_Region_Nachtbetrieb_Gelbaus:
+        sendDeactivation("Controller/Steuerung/Region/Nachtbetrieb/Region/Gelbaus");
+        break;
+    }
+    #endif // USESOCKET
+    cancelTimer(0);
+    state_Steuerung_Region_Nachtbetrieb = S_DEFAULT;
+}
+
+static void doStep_Steuerung_Region_Tagbetrieb(uint32_t tick) {
+    switch(state_Steuerung_Region_Tagbetrieb){
+    case S_DEFAULT:
+        port_write_Controller_Rot(1);
+        port_write_Controller_Gelb(0);
+        port_write_Controller_Gruen(0);
+        declareTimer(0,10,TimeOutRegionEv);
+        startTimer(0,tick);
+        state_Steuerung_Region_Tagbetrieb = S_Steuerung_Region_Tagbetrieb_Rot;
+        #ifdef USESOCKET
+        sendActivation("Controller/Steuerung/Region/Tagbetrieb/Region/Rot");
+        #endif // USESOCKET
+        break;
+    case S_Steuerung_Region_Tagbetrieb_Rot:
+        if (eventIsSet(TimeOutRegionEv)) {
+            port_write_Controller_Gelb(1);
+            declareTimer(0,2,TimeOutRegionEv);
+            startTimer(0,tick);
+            state_Steuerung_Region_Tagbetrieb = S_Steuerung_Region_Tagbetrieb_RotGelb;
+            #ifdef USESOCKET
+            sendDeactivation("Controller/Steuerung/Region/Tagbetrieb/Region/Rot");
+            sendActivation("Controller/Steuerung/Region/Tagbetrieb/Region/RotGelb");
+            #endif // USESOCKET
+        }
+        break;
+    case S_Steuerung_Region_Tagbetrieb_RotGelb:
+        if (eventIsSet(TimeOutRegionEv)) {
+            port_write_Controller_Rot(0);
+            port_write_Controller_Gelb(0);
+            port_write_Controller_Gruen(1);
+            declareTimer(0,10,TimeOutRegionEv);
+            startTimer(0,tick);
+            state_Steuerung_Region_Tagbetrieb = S_Steuerung_Region_Tagbetrieb_Gruen;
+            #ifdef USESOCKET
+            sendDeactivation("Controller/Steuerung/Region/Tagbetrieb/Region/RotGelb");
+            sendActivation("Controller/Steuerung/Region/Tagbetrieb/Region/Gruen");
+            #endif // USESOCKET
+        }
+        break;
+    case S_Steuerung_Region_Tagbetrieb_Gruen:
+         if (eventIsSet(TimeOutRegionEv)) {
+            port_write_Controller_Gelb(1);
+            port_write_Controller_Gruen(0);
+            declareTimer(0,2,TimeOutRegionEv);
+            startTimer(0,tick);
+            state_Steuerung_Region_Tagbetrieb = S_Steuerung_Region_Tagbetrieb_Gelb;
+            #ifdef USESOCKET
+            sendDeactivation("Controller/Steuerung/Region/Tagbetrieb/Region/Gruen");
+            sendActivation("Controller/Steuerung/Region/Tagbetrieb/Region/Gelb");
+            #endif // USESOCKET
+        }
+        break;
+    case S_Steuerung_Region_Tagbetrieb_Gelb:
+         if (eventIsSet(TimeOutRegionEv)) {
+            port_write_Controller_Rot(1);
+            port_write_Controller_Gelb(0);
+            declareTimer(0,10,TimeOutRegionEv);
+            startTimer(0,tick);
+            state_Steuerung_Region_Tagbetrieb = S_Steuerung_Region_Tagbetrieb_Rot;
+            #ifdef USESOCKET
+            sendDeactivation("Controller/Steuerung/Region/Tagbetrieb/Region/Gelb");
+            sendActivation("Controller/Steuerung/Region/Tagbetrieb/Region/Rot");
+            #endif // USESOCKET
+        }
+        break;
+    }
+}
+
+static void leave_Steuerung_Region_Tagbetrieb() {
+    #ifdef USESOCKET
+    switch(state_Steuerung_Region_Tagbetrieb) {
+    case S_Steuerung_Region_Tagbetrieb_Rot:
+        sendDeactivation("Controller/Steuerung/Region/Tagbetrieb/Region/Rot");
+        break;
+    case S_Steuerung_Region_Tagbetrieb_RotGelb:
+        sendDeactivation("Controller/Steuerung/Region/Tagbetrieb/Region/RotGelb");
+        break;
+    case S_Steuerung_Region_Tagbetrieb_Gelb:
+        sendDeactivation("Controller/Steuerung/Region/Tagbetrieb/Region/Gelb");
+        break;
+    case S_Steuerung_Region_Tagbetrieb_Gruen:
+        sendDeactivation("Controller/Steuerung/Region/Tagbetrieb/Region/Gruen");
+        break;
+    }
+    #endif // USESOCKET
+    cancelTimer(0);
+    state_Steuerung_Region_Tagbetrieb = S_DEFAULT;
+}
+
+static void doStep_Steuerung_Region1(uint32_t tick) {
+    switch(state_Steuerung_Region1) {
+    case S_DEFAULT:
+        declareTimer(1,2,TimeOutRegion1Ev);
+        startTimer(1,tick);
+        state_Steuerung_Region1 = S_Steuerung_Region1_Released;
+        #ifdef USESOCKET
+        sendActivation("Controller/Steuerung/Region1/Released");
+        #endif // USESOCKET
+        break;
+    case S_Steuerung_Region1_Released:
+        if (eventIsSet(TimeOutRegion1Ev)){
+            if (port_read_Controller_Taster()==1){
+                setEvent(TasterEv);
+                declareTimer(1,2,TimeOutRegion1Ev);
+                startTimer(1,tick);
+                state_Steuerung_Region1 = S_Steuerung_Region1_pressed;
+                #ifdef USESOCKET
+                sendDeactivation("Controller/Steuerung/Region1/Released");
+                sendActivation("Controller/Steuerung/Region1/pressed");
+                #endif // USESOCKET
+                break;
+            } else {
+                declareTimer(1,2,TimeOutRegion1Ev);
+                startTimer(1,tick);
+            }
+        }
+        break;
+    case S_Steuerung_Region1_pressed:
+        if (eventIsSet(TimeOutRegion1Ev)){
+            if (port_read_Controller_Taster()==0){
+                declareTimer(1,2,TimeOutRegion1Ev);
+                startTimer(1,tick);
+                state_Steuerung_Region1 = S_Steuerung_Region1_Released;
+                #ifdef USESOCKET
+                sendDeactivation("Controller/Steuerung/Region1/pressed");
+                sendActivation("Controller/Steuerung/Region1/Released");
+                #endif // USESOCKET
+                break;
+            } else {
+                declareTimer(1,2,TimeOutRegion1Ev);
+                startTimer(1,tick);
+            }
+        }
+        break;
+    }
+}
+
+static void leave_Steuerung_Region1() {
+    #ifdef USESOCKET
+    switch(state_Steuerung_Region1) {
+    case S_Steuerung_Region1_Released:
+        sendDeactivation("Controller/Steuerung/Region1/Released");
+        break;
+    case S_Steuerung_Region1_pressed:
+        sendDeactivation("Controller/Steuerung/Region1/pressed");
+        break;
+    }
+    #endif // USESOCKET
+    cancelTimer(1);
+    state_Steuerung_Region1 = S_DEFAULT;
+}
+
+
+static void doStep_Steuerung_Region(uint32_t tick) {
+    switch(state_Steuerung_Region) {
+    case S_DEFAULT:
+        state_Steuerung_Region = S_Steuerung_Region_Tagbetrieb;
+        #ifdef USESOCKET
+        sendActivation("Controller/Steuerung/Region/Tagbetrieb");
+        #endif // USESOCKET
+        doStep_Steuerung_Region_Tagbetrieb(tick);
+        break;
+    case S_Steuerung_Region_Tagbetrieb:
+        if (eventIsSet(TasterEv)){
+            port_write_Controller_Rot(0);
+            port_write_Controller_Gelb(1);
+            port_write_Controller_Gruen(0);
+            cancelTimer(0);
+            state_Steuerung_Region = S_Steuerung_Region_Nachtbetrieb;
+            #ifdef USESOCKET
+            sendActivation("Controller/Steuerung/Region/Nachtbetrieb");
+            sendDeactivation("Controller/Steuerung/Region/Tagbetrieb");
+            #endif // USESOCKET
+            leave_Steuerung_Region_Tagbetrieb();
+            doStep_Steuerung_Region_Nachtbetrieb(tick);
+        }
+        else {
+            doStep_Steuerung_Region_Tagbetrieb(tick);
+        }
+        break;
+    case S_Steuerung_Region_Nachtbetrieb:
+        if (eventIsSet(TasterEv)){
+            cancelTimer(0);
+            state_Steuerung_Region = S_Steuerung_Region_Tagbetrieb;
+            #ifdef USESOCKET
+            sendActivation("Controller/Steuerung/Region/Tagbetrieb");
+            sendDeactivation("Controller/Steuerung/Region/Nachtbetrieb");
+            #endif // USESOCKET
+            leave_Steuerung_Region_Nachtbetrieb();
+            doStep_Steuerung_Region_Tagbetrieb(tick);
+        }
+        else {
+            doStep_Steuerung_Region_Nachtbetrieb(tick);
+        }
+        break;
+    }
+}
+
+static void leave_Steuerung_Region() {
+
+    switch(state_Steuerung_Region) {
+    case S_Steuerung_Region_Tagbetrieb:
+        leave_Steuerung_Region_Tagbetrieb();
+        #ifdef USESOCKET
+        sendDeactivation("Controller/Steuerung/Region/Tagbetrieb");
+        #endif // USESOCKET
+        break;
+    case S_Steuerung_Region_Nachtbetrieb:
+        leave_Steuerung_Region_Nachtbetrieb();
+        #ifdef USESOCKET
+        sendDeactivation("Controller/Steuerung/Region/Nachtbetrieb");
+        #endif // USESOCKET
+        break;
+    }
+    state_Steuerung_Region = S_DEFAULT;
+}
+
+
+static void doStep_Steuerung(uint32_t tick) {
+    doStep_Steuerung_Region(tick);
+    doStep_Steuerung_Region1(tick);
+}
+
+static void leave_Steuerung() {
+    leave_Steuerung_Region();
+    leave_Steuerung_Region1();
+    #ifdef USESOCKET
+    sendDeactivation("Controller/Steuerung");
+    #endif // USESOCKET
+}
+
+
+static void Controller_stmDoStep(uint32_t tick) {
+   switch (state) {
+   case S_DEFAULT:
+        #ifdef USESOCKET
+        sendActivation("Controller/Steuerung");
+        #endif // USESOCKET
+        state = S_Steuerung;
+        doStep_Steuerung(tick);
+        break;
+   case S_Steuerung:
+        doStep_Steuerung(tick);
+        break;
+   }
+}
+
+//  ---------------------------------------------------------------
+
+
+
+
+
+//                     ___
+//                    |   |
+//                    |   |
+//                    |   |
+//                  __|   |__
+//                  \       /
+//                   \     /
+//                    \   /
+//                     \ /
+//  --------Hier Code manuell einsetzen------------------------
+
+// Funktion zur Abarbeitung der StateMachine und der Sub-Komponenten
+//   muss manuell erstellt werden
+//   beachten Sie die Simualtions-Hierarchie:
+//     - erst alle Subkomponenten Schritt machen lassen
+//     - dann die eigene StateMachine
+void Controller_doStep(uint32_t tick) {
+	// 1. Timer aktualisieren (Achtung! TimerEvent erst im nächsten Schritt sichtbar, siehe Semantik)
+	doTimerStep(tick);
+	// 2. Subkomponenten machen ihren Schritt
+
+	// 3. StateMachine der Komponente macht ihren Schritt
+	Controller_stmDoStep(tick);
+}

@@ -1,0 +1,23 @@
+{ 
+   "lifelines" :  
+   [ 
+      [  
+         "EventName1_Gate1", 
+         "EventName2_Gate2", 
+         "EventName3_Gate3"
+      ], 
+
+      [  
+         "EventName4_Gate4", 
+         "EventName5_Gate5", 
+         "EventName6_Gate6" 
+      ] 
+   ], 
+   "messages" : 
+   [ 
+      { 
+        "Source" : "EventName2_Gate2",
+        "Target" : "EventName4_Gate4"
+      } 
+   ]
+} 

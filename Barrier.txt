@@ -1,0 +1,26 @@
+{
+    "Component_Name": "Barrier",
+    "States": [
+            {
+                "name": "Default",
+                "transition": {
+                    "../.." : "Raised"
+                },
+                "children": {}
+            },
+            {
+                "name": "Raised",
+                "transition": {
+                    "tm(1)^[port_read_Barrier_Req()==1]/port_write_Barrier_Ack(1);<port_write_Barrier_Ack(0)>;" : "Closed",
+                },
+                "children": {}
+            },
+            {
+                "name": "Closed",
+                "transition": {
+                    "tm(1)^[port_read_Barrier_Req()==1]/port_write_Barrier_Ack(1);<port_write_Barrier_Ack(0)>;" : "Raised"
+                },
+                "children": {}
+            }
+    ]
+}

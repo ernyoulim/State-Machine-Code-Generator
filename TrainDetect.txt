@@ -1,0 +1,26 @@
+{
+    "Component_Name": "TrainDetect",
+    "States": [
+            {
+                "name": "Default",
+                "transition": {
+                    "../.." : "Input1"
+                },
+                "children": {}
+            },
+            {
+                "name": "Input1",
+                "transition": {
+                    "tm(20)/port_write_VehicleDetect_hasTrain(1);" : "Input2"
+                },
+                "children": {}
+            },
+            {
+                "name": "Input2",
+                "transition": {
+                    "tm(5)/port_write_VehicleDetect_hasTrain(1);" : "Input1"
+                },
+                "children": {}
+            }
+    ]
+}

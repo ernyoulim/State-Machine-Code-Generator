@@ -1,0 +1,103 @@
+{
+    "Component_Name": "Controller",
+    "States": [
+            {
+                "name": "Default",
+                "transition": {
+                    "../.." : "Steuerung"
+                },
+                "children": {}
+            },
+            {
+                "name": "Steuerung",
+                "transition": {},
+                "children": {
+                    "and" : true,
+                    "states" : [
+                        {
+                            "name" : "region",
+                            "transition" : {},
+                            "children" : {
+                                "and" : false,
+                                "states" : [
+                                    {
+                                        "name": "Default",
+                                        "transition": {
+                                            "../..": "LC_Unblocked"
+                                        },
+                                        "children": {}
+                                    },
+                                    {
+                                        "name": "LC_Unblocked",
+                                        "transition": {
+                                            "tm(1)^[port_read_Controller_hasTrain() == 1]/(Req)": "LC_Blocking"
+                                        },
+                                        "children": {}
+                                    },
+                                    {
+                                        "name": "LC_Blocking",
+                                        "transition": {
+                                            "Ack/.." : "LC_Blocked",
+                                            "tm(8)/port_write_Controller_trainStop(1)" : "LC_Hazard"
+                                        },
+                                        "children": {}
+                                    },
+                                    {
+                                        "name": "LC_Blocked",
+                                        "transition": {
+                                            "tm(1)^[port_read_Controller_hasTrain()==0]/(Req)": "LC_Unblocking",
+                                            "tm(1)^[port_read_Controller_hasVehicle()==1]/port_write_Controller_trainStop(1)" : "LC_Hazard"
+                                        },
+                                        "children": {}
+                                    },
+                                    {
+                                        "name": "LC_Unblocking",
+                                        "transition": {
+                                            "Ack/.." : "LC_Unblocked",
+                                            "tm(8)/port_write_Controller_isMalfunction(1);": "LC_Hazard"
+                                        },
+                                        "children": {}
+                                    },
+                                    {
+                                        "name" : "LC_Hazard",
+                                        "transition" : {},
+                                        "children" : {}
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "name" : "region1",
+                            "transition" : {},
+                            "children" : {
+                                "and" : false,
+                                "states" : [
+                                    {
+                                        "name": "Default",
+                                        "transition": {
+                                            "../..": "WaitReq"
+                                        },
+                                        "children": {}
+                                    },
+                                    {
+                                        "name": "WaitReq",
+                                        "transition": {
+                                            "Req/port_write_Controller_TLReq(1);port_write_Controller_BarReq(1)" : "WaitAck"
+                                        },
+                                        "children": {}
+                                    },
+                                    {
+                                        "name": "WaitAck",
+                                        "transition": {
+                                            "tm(1)^[port_read_Controller_TLAck()==1 && port_read_Controller_BarAck()==1]/(Ack);port_write_Controller_TLReq(0);port_write_Controller_BarReq(0)": "WaitReq"
+                                        },
+                                        "children": {}
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+    ]
+}

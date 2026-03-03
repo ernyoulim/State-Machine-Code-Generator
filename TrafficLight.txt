@@ -1,0 +1,40 @@
+{
+    "Component_Name": "TrafficLight",
+    "States": [
+            {
+                "name": "Default",
+                "transition": {
+                    "../.." : "Green"
+                },
+                "children": {}
+            },
+            {
+                "name": "Green",
+                "transition": {
+                    "tm(1)^[port_read_TrafficLight_Req()==1]/..;<port_write_TrafficLight_Ack(0)>" : "RedYellow"
+                },
+                "children": {}
+            },
+            {
+                "name": "RedYellow",
+                "transition": {
+                    "../port_write_TrafficLight_Ack(1);" : "Red"
+                },
+                "children": {}
+            },
+            {
+                "name": "Red",
+                "transition": {
+                    "tm(1)^[port_read_TrafficLight_Req()==1]/..;<port_write_TrafficLight_Ack(0)>" : "Yellow"
+                },
+                "children": {}
+            },
+            {
+                "name": "Yellow",
+                "transition": {
+                    "../port_write_TrafficLight_Ack(1)" : "Green"
+                },
+                "children": {}
+            }
+    ]
+}

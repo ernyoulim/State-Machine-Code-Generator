@@ -1,0 +1,142 @@
+[
+    {
+        "name": "Default",
+        "transition": {
+            "../..": "Controller"
+        },
+        "children": {}
+    },
+    {
+        "name": "Controller",
+        "transition": {},
+        "children": {
+            "and": true,
+            "states": [
+                {
+                    "name": "region",
+                    "transition": {},
+                    "children": {
+                        "and": false,
+                        "states": [
+                            {
+                                "name": "Default",
+                                "transition": {
+                                    "../..": "TagBetrieb"
+                                },
+                                "children": {}
+                            },
+                            {
+                                "name": "TagBetrieb",
+                                "transition": {
+                                    "TasterEv/port_write_Controller_Rot(0);port_write_Controller_Gelb(1);port_write_Controller_Gruen(0);": "NachtBetrieb"
+                                },
+                                "children": {
+                                    "and": false,
+                                    "states": [
+                                        {
+                                            "name": "Default",
+                                            "transition": {
+                                                "../port_write_Controller_Rot(1);port_write_Controller_Gelb(0);port_write_Controller_Gruen(0);": "Rot"
+                                            },
+                                            "children": {}
+                                        },
+                                        {
+                                            "name": "Rot",
+                                            "transition": {
+                                                "tm(10)/port_write_Controller_Gelb(1);": "RotGelb"
+                                            },
+                                            "children": {}
+                                        },
+                                        {
+                                            "name": "RotGelb",
+                                            "transition": {
+                                                "tm(2)/port_write_Controller_Rot(0);port_write_Controller_Gelb(0);port_write_Controller_Gruen(1);": "Gruen"
+                                            },
+                                            "children": {}
+                                        },
+                                        {
+                                            "name": "Gruen",
+                                            "transition": {
+                                                "tm(10)/port_write_Controller_Gruen(0);port_write_Controller_Gelb(1);": "Gelb"
+                                            },
+                                            "children": {}
+                                        },
+                                        {
+                                            "name": "Gelb",
+                                            "transition": {
+                                                "tm(2)/port_write_Controller_Gelb(0);port_write_Controller_Rot(1);": "Rot"
+                                            },
+                                            "children": {}
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "name": "NachtBetrieb",
+                                "transition": {
+                                    "TasterEv/.." : "TagBetrieb"
+                                },
+                                "children": {
+                                    "and" : "false",
+                                    "states" :  [
+                                        {
+                                            "name" : "Default",
+                                            "transition" : {
+                                                "../.." : "Gelban"
+                                            },
+                                            "children" : {}
+                                        },
+                                        {
+                                            "name" : "Gelban",
+                                            "transition" : {
+                                                "tm(4)/port_write_Controller_Gelb(0);" : "Gelbaus"
+                                            },
+                                            "children" : {}
+                                        },
+                                        {
+                                            "name" : "Gelbaus",
+                                            "transition" : {
+                                                "tm(4)/port_write_Controller_Gelb(1);" : "Gelban"
+                                            },
+                                            "children" : {}
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "region1",
+                    "transition": {},
+                    "children": {
+                        "and": false,
+                        "states": [
+                            {
+                                "name": "Default",
+                                "transition": {
+                                    "../..": "Released"
+                                },
+                                "children": {}
+                            },
+                            {
+                                "name": "Released",
+                                "transition": {
+                                    "tm(2)^[port_read_Controller_Taster()==1]/(TasterEv)" : "Pressed"
+                                },
+                                "children": {}
+                            },
+                            {
+                                "name": "Pressed",
+                                "transition": {
+                                    "tm(2)^[port_read_Controller_Taster()==0]/..": "Released"
+                                },
+                                "children": {}
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    }
+]
